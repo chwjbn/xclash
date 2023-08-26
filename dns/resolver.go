@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Dreamacro/clash/common/cache"
-	"github.com/Dreamacro/clash/common/picker"
-	"github.com/Dreamacro/clash/component/fakeip"
-	"github.com/Dreamacro/clash/component/resolver"
-	"github.com/Dreamacro/clash/component/trie"
-	C "github.com/Dreamacro/clash/constant"
+	"github.com/chwjbn/xclash/common/cache"
+	"github.com/chwjbn/xclash/common/picker"
+	"github.com/chwjbn/xclash/component/fakeip"
+	"github.com/chwjbn/xclash/component/resolver"
+	"github.com/chwjbn/xclash/component/trie"
+	C "github.com/chwjbn/xclash/constant"
 
 	D "github.com/miekg/dns"
 	"golang.org/x/sync/singleflight"

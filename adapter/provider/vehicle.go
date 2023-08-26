@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/Dreamacro/clash/component/dialer"
-	types "github.com/Dreamacro/clash/constant/provider"
+	"github.com/chwjbn/xclash/component/dialer"
+	types "github.com/chwjbn/xclash/constant/provider"
 )
 
 type FileVehicle struct {

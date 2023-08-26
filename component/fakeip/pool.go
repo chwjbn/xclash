@@ -5,9 +5,9 @@ import (
 	"net"
 	"sync"
 
-	"github.com/Dreamacro/clash/common/cache"
-	"github.com/Dreamacro/clash/component/profile/cachefile"
-	"github.com/Dreamacro/clash/component/trie"
+	"github.com/chwjbn/xclash/common/cache"
+	"github.com/chwjbn/xclash/component/profile/cachefile"
+	"github.com/chwjbn/xclash/component/trie"
 )
 
 type store interface {

@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/Dreamacro/clash/common/pool"
-	"github.com/Dreamacro/clash/transport/socks5"
-	"github.com/Dreamacro/clash/transport/vmess"
+	"github.com/chwjbn/xclash/common/pool"
+	"github.com/chwjbn/xclash/transport/socks5"
+	"github.com/chwjbn/xclash/transport/vmess"
 )
 
 const (

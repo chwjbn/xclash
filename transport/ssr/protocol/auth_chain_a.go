@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Dreamacro/clash/common/pool"
-	"github.com/Dreamacro/clash/log"
-	"github.com/Dreamacro/clash/transport/ssr/tools"
+	"github.com/chwjbn/xclash/common/pool"
+	"github.com/chwjbn/xclash/log"
+	"github.com/chwjbn/xclash/transport/ssr/tools"
 
 	"github.com/Dreamacro/go-shadowsocks2/core"
 )

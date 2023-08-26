@@ -7,7 +7,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/Dreamacro/clash/common/pool"
+	"github.com/chwjbn/xclash/common/pool"
 
 	"github.com/Dreamacro/go-shadowsocks2/shadowaead"
 )

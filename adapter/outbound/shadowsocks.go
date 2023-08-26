@@ -7,12 +7,12 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/Dreamacro/clash/common/structure"
-	"github.com/Dreamacro/clash/component/dialer"
-	C "github.com/Dreamacro/clash/constant"
-	obfs "github.com/Dreamacro/clash/transport/simple-obfs"
-	"github.com/Dreamacro/clash/transport/socks5"
-	v2rayObfs "github.com/Dreamacro/clash/transport/v2ray-plugin"
+	"github.com/chwjbn/xclash/common/structure"
+	"github.com/chwjbn/xclash/component/dialer"
+	C "github.com/chwjbn/xclash/constant"
+	obfs "github.com/chwjbn/xclash/transport/simple-obfs"
+	"github.com/chwjbn/xclash/transport/socks5"
+	v2rayObfs "github.com/chwjbn/xclash/transport/v2ray-plugin"
 
 	"github.com/Dreamacro/go-shadowsocks2/core"
 )

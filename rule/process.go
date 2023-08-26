@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Dreamacro/clash/common/cache"
-	"github.com/Dreamacro/clash/component/process"
-	C "github.com/Dreamacro/clash/constant"
-	"github.com/Dreamacro/clash/log"
+	"github.com/chwjbn/xclash/common/cache"
+	"github.com/chwjbn/xclash/component/process"
+	C "github.com/chwjbn/xclash/constant"
+	"github.com/chwjbn/xclash/log"
 )
 
 var processCache = cache.NewLRUCache(cache.WithAge(2), cache.WithSize(64))

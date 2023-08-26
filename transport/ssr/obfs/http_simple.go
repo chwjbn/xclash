@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Dreamacro/clash/common/pool"
+	"github.com/chwjbn/xclash/common/pool"
 )
 
 func init() {
