@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"github.com/chwjbn/xclash/component/auth"
 	"net"
 	"net/http"
 	"strings"
@@ -35,9 +36,10 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 		keepAlive = strings.TrimSpace(strings.ToLower(request.Header.Get("Proxy-Connection"))) == "keep-alive"
 
 		var resp *http.Response
+		var authUser *auth.AuthUser
 
 		if !trusted {
-			resp = authenticate(request, cache)
+			resp = authenticate(request, cache,authUser)
 
 			trusted = resp == nil
 		}
@@ -49,7 +51,12 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 					break // close connection
 				}
 
-				in <- inbound.NewHTTPS(request, conn)
+				connCtx:=inbound.NewHTTPS(request, conn)
+				if authUser!=nil{
+					connCtx.SetAuthUser(authUser)
+				}
+
+				in <- connCtx
 
 				return // hijack connection
 			}
@@ -93,7 +100,8 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 	conn.Close()
 }
 
-func authenticate(request *http.Request, cache *cache.Cache) *http.Response {
+func authenticate(request *http.Request, cache *cache.Cache,authUser *auth.AuthUser) *http.Response {
+
 	authenticator := authStore.Authenticator()
 	if authenticator != nil {
 		credential := parseBasicProxyAuthorization(request)
@@ -108,6 +116,8 @@ func authenticate(request *http.Request, cache *cache.Cache) *http.Response {
 			user, pass, err := decodeBasicProxyAuthorization(credential)
 			authed = err == nil && authenticator.Verify(user, pass)
 			cache.Put(credential, authed, time.Minute)
+
+			authUser=&auth.AuthUser{User: user,Pass: pass}
 		}
 		if !authed.(bool) {
 			log.Infoln("Auth failed from %s", request.RemoteAddr)

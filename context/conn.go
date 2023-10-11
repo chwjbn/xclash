@@ -1,6 +1,7 @@
 package context
 
 import (
+	"github.com/chwjbn/xclash/component/auth"
 	"net"
 
 	C "github.com/chwjbn/xclash/constant"
@@ -12,6 +13,7 @@ type ConnContext struct {
 	id       uuid.UUID
 	metadata *C.Metadata
 	conn     net.Conn
+	authUser  *auth.AuthUser
 }
 
 func NewConnContext(conn net.Conn, metadata *C.Metadata) *ConnContext {
@@ -20,6 +22,16 @@ func NewConnContext(conn net.Conn, metadata *C.Metadata) *ConnContext {
 		id:       id,
 		metadata: metadata,
 		conn:     conn,
+	}
+}
+
+func NewConnContextWithAuth(conn net.Conn, metadata *C.Metadata,authUser auth.AuthUser) *ConnContext {
+	id, _ := uuid.NewV4()
+	return &ConnContext{
+		id:       id,
+		metadata: metadata,
+		conn:     conn,
+		authUser: &authUser,
 	}
 }
 
@@ -36,4 +48,12 @@ func (c *ConnContext) Metadata() *C.Metadata {
 // Conn implement C.ConnContext Conn
 func (c *ConnContext) Conn() net.Conn {
 	return c.conn
+}
+
+func (c *ConnContext)AuthUser() *auth.AuthUser  {
+	return c.authUser
+}
+
+func (c *ConnContext)SetAuthUser(authUser *auth.AuthUser) {
+	c.authUser=authUser
 }
