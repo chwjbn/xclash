@@ -12,6 +12,7 @@ type Listener struct {
 	listener net.Listener
 	addr     string
 	closed   bool
+	relay    bool
 }
 
 // RawAddress implements C.Listener
@@ -28,6 +29,10 @@ func (l *Listener) Address() string {
 func (l *Listener) Close() error {
 	l.closed = true
 	return l.listener.Close()
+}
+
+func (l *Listener) SetRelay(relay bool)  {
+	l.relay=true
 }
 
 func New(addr string, in chan<- C.ConnContext) (*Listener, error) {
@@ -48,6 +53,7 @@ func NewWithAuthenticate(addr string, in chan<- C.ConnContext, authenticate bool
 	hl := &Listener{
 		listener: l,
 		addr:     addr,
+		relay: false,
 	}
 	go func() {
 		for {

@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"errors"
+	"github.com/chwjbn/xclash/component/auth"
 	"net"
 	"net/http"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/chwjbn/xclash/transport/socks5"
 )
 
-func newClient(source net.Addr, in chan<- C.ConnContext) *http.Client {
+func newHttpClient(source net.Addr, in chan<- C.ConnContext,authUser *auth.AuthUser) *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
 			// from http.DefaultTransport
@@ -32,7 +33,12 @@ func newClient(source net.Addr, in chan<- C.ConnContext) *http.Client {
 
 				left, right := net.Pipe()
 
-				in <- inbound.NewHTTP(dstAddr, source, right)
+				xConnCtx:=inbound.NewHTTP(dstAddr, source, right)
+				if authUser!=nil{
+					xConnCtx.SetAuthUser(authUser)
+				}
+
+				in <- xConnCtx
 
 				return left, nil
 			},

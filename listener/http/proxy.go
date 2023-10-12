@@ -17,35 +17,50 @@ import (
 )
 
 func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
-	client := newClient(c.RemoteAddr(), in)
-	defer client.CloseIdleConnections()
+
+	//http客户端,http时有效
+	var xHttpClient *http.Client=nil
+	defer func() {
+		if xHttpClient!=nil{
+			xHttpClient.CloseIdleConnections()
+		}
+	}()
 
 	conn := N.NewBufferedConn(c)
 
 	keepAlive := true
-	trusted := cache == nil // disable authenticate if cache is nil
+
+	trusted:=false
+	if cache==nil{
+		trusted=true
+	}
 
 	for keepAlive {
+
 		request, err := ReadRequest(conn.Reader())
 		if err != nil {
 			break
 		}
 
-		request.RemoteAddr = conn.RemoteAddr().String()
-
 		keepAlive = strings.TrimSpace(strings.ToLower(request.Header.Get("Proxy-Connection"))) == "keep-alive"
 
-		var resp *http.Response
+		request.RemoteAddr = conn.RemoteAddr().String()
+
 		var authUser *auth.AuthUser
+		var resp *http.Response
 
-		if !trusted {
+		if !trusted{
 			resp = authenticate(request, cache,authUser)
-
-			trusted = resp == nil
+			if resp==nil{
+				trusted=true
+			}
 		}
 
-		if trusted {
-			if request.Method == http.MethodConnect {
+		if trusted{
+
+			//HTTPS连接
+			if strings.EqualFold(request.Method,http.MethodConnect){
+
 				// Manual writing to support CONNECT for http 1.0 (workaround for uplay client)
 				if _, err = fmt.Fprintf(conn, "HTTP/%d.%d %03d %s\r\n\r\n", request.ProtoMajor, request.ProtoMinor, http.StatusOK, "Connection established"); err != nil {
 					break // close connection
@@ -59,6 +74,13 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 				in <- connCtx
 
 				return // hijack connection
+
+			}
+
+
+			//HTTP连接
+			if xHttpClient==nil{
+				xHttpClient=newHttpClient(c.RemoteAddr(), in,authUser)
 			}
 
 			host := request.Header.Get("Host")
@@ -67,14 +89,13 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 			}
 
 			request.RequestURI = ""
-
 			removeHopByHopHeaders(request.Header)
 			removeExtraHTTPHostPort(request)
 
 			if request.URL.Scheme == "" || request.URL.Host == "" {
 				resp = responseWith(request, http.StatusBadRequest)
 			} else {
-				resp, err = client.Do(request)
+				resp, err = xHttpClient.Do(request)
 				if err != nil {
 					resp = responseWith(request, http.StatusBadGateway)
 				}
@@ -82,6 +103,7 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 
 			removeHopByHopHeaders(resp.Header)
 		}
+
 
 		if keepAlive {
 			resp.Header.Set("Proxy-Connection", "keep-alive")
@@ -95,6 +117,7 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 		if err != nil {
 			break // close connection
 		}
+
 	}
 
 	conn.Close()
