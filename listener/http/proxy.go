@@ -46,11 +46,11 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 
 		request.RemoteAddr = conn.RemoteAddr().String()
 
-		var authUser *auth.AuthUser
+		var authUser auth.AuthUser
 		var resp *http.Response
 
 		if !trusted{
-			resp = authenticate(request, cache,authUser)
+			resp = authenticate(request, cache,&authUser)
 			if resp==nil{
 				trusted=true
 			}
@@ -67,8 +67,8 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 				}
 
 				connCtx:=inbound.NewHTTPS(request, conn)
-				if authUser!=nil{
-					connCtx.SetAuthUser(authUser)
+				if len(authUser.User)>0{
+					connCtx.SetAuthUser(&authUser)
 				}
 
 				in <- connCtx
