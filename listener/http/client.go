@@ -13,7 +13,7 @@ import (
 	"github.com/chwjbn/xclash/transport/socks5"
 )
 
-func newHttpClient(source net.Addr, in chan<- C.ConnContext,authUser auth.AuthUser) *http.Client {
+func newHttpClient(source net.Addr, in chan<- C.ConnContext,authUser *auth.AuthUser) *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
 			// from http.DefaultTransport
@@ -34,9 +34,7 @@ func newHttpClient(source net.Addr, in chan<- C.ConnContext,authUser auth.AuthUs
 				left, right := net.Pipe()
 
 				xConnCtx:=inbound.NewHTTP(dstAddr, source, right)
-				if len(authUser.User)>0{
-					xConnCtx.SetAuthUser(&authUser)
-				}
+				xConnCtx.SetAuthUser(authUser)
 
 				in <- xConnCtx
 

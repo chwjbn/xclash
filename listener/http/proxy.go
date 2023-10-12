@@ -46,11 +46,11 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 
 		request.RemoteAddr = conn.RemoteAddr().String()
 
-		var authUser auth.AuthUser
+		var authUser *auth.AuthUser
 		var resp *http.Response
 
 		if !trusted{
-			resp = authenticate(request, cache,&authUser)
+			resp,authUser = authenticate(request, cache)
 			if resp==nil{
 				trusted=true
 			}
@@ -67,9 +67,7 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 				}
 
 				connCtx:=inbound.NewHTTPS(request, conn)
-				if len(authUser.User)>0{
-					connCtx.SetAuthUser(&authUser)
-				}
+				connCtx.SetAuthUser(authUser)
 
 				in <- connCtx
 
@@ -123,7 +121,9 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.Cache) {
 	conn.Close()
 }
 
-func authenticate(request *http.Request, cache *cache.Cache,authUser *auth.AuthUser) *http.Response {
+func authenticate(request *http.Request, cache *cache.Cache) (*http.Response,*auth.AuthUser) {
+
+	var authUser *auth.AuthUser=nil
 
 	authenticator := authStore.Authenticator()
 	if authenticator != nil {
@@ -131,7 +131,7 @@ func authenticate(request *http.Request, cache *cache.Cache,authUser *auth.AuthU
 		if credential == "" {
 			resp := responseWith(request, http.StatusProxyAuthRequired)
 			resp.Header.Set("Proxy-Authenticate", "Basic")
-			return resp
+			return resp,authUser
 		}
 
 		var authed interface{}
@@ -145,11 +145,11 @@ func authenticate(request *http.Request, cache *cache.Cache,authUser *auth.AuthU
 		if !authed.(bool) {
 			log.Infoln("Auth failed from %s", request.RemoteAddr)
 
-			return responseWith(request, http.StatusForbidden)
+			return responseWith(request, http.StatusForbidden),authUser
 		}
 	}
 
-	return nil
+	return nil,authUser
 }
 
 func responseWith(request *http.Request, statusCode int) *http.Response {
